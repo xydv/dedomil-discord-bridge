@@ -13,14 +13,11 @@ bot.once('ready', async () => {
             .set("Cookie", process.env.GETCOOKIE);
         let $ = cheerio.load(html.text);
         let shout = $("tr[id ^= shout-]").first().text().trim().replace("--", "-").replace("» ", "").split(" - ");
-        if (!(shout[2] == fmessage) && !(shout[0] == "Discord")) {
-            console.log(shout)
-            console.log(fmessage)
-            console.log(shout[2])
-            console.log(shout[0])
-            console.log('New Message On Dedomil');
-            fmessage = shout[2];
-            channel.send(`**${shout[0]} :** ${shout[2]}`);
+        if (!(shout[2] === fmessage) && !(shout[0] === "Discord")) {
+            if (!(shout[2] === undefined)) {
+                fmessage = shout[2];
+                channel.send(`**${shout[0]} :** ${shout[2]}`);
+            }
         }
     }, 2000);
 });
