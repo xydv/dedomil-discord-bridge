@@ -14,6 +14,10 @@ bot.once('ready', async () => {
         let $ = cheerio.load(html.text);
         let shout = $("tr[id ^= shout-]").first().text().trim().replace("--", "-").replace("» ", "").split(" - ");
         if (!(shout[2] == fmessage) && !(shout[0] == "Discord")) {
+            console.log(shout)
+            console.log(fmessage)
+            console.log(shout[2])
+            console.log(shout[0])
             console.log('New Message On Dedomil');
             fmessage = shout[2];
             channel.send(`**${shout[0]} :** ${shout[2]}`);
@@ -22,7 +26,6 @@ bot.once('ready', async () => {
 });
 bot.on("messageCreate", async (message) => {
     if (message.channel.id == process.env.CID && !(message.member.displayName == "Dedomil")) {
-        console.log('New Message On Discord');
         await superagent.post(process.env.SENDSHOUTURL)
             .set("Cookie", process.env.SENDCOOKIE)
             .accept(process.env.SENDACCEPT)
