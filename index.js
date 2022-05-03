@@ -22,12 +22,31 @@ bot.once('ready', async () => {
     }, 2000);
 });
 bot.on("messageCreate", async (message) => {
-    if (message.channel.id == process.env.CID && !(message.member.displayName == "Dedomil")) {
-        await superagent.post(process.env.SENDSHOUTURL)
-            .set("Cookie", process.env.SENDCOOKIE)
-            .accept(process.env.SENDACCEPT)
-            .field("shout_data", `[b]${message.member.displayName}[/b] : ${message.content}`)
-            .field("postcode", process.env.SENDPOSTCODE)
+    if (message.attachments.size == 0) {
+        if (message.channel.id == process.env.CID && !(message.member.displayName == "Dedomil")) {
+            await superagent.post(process.env.SENDSHOUTURL)
+                .set("Cookie", process.env.SENDCOOKIE)
+                .accept(process.env.SENDACCEPT)
+                .field("shout_data", `[b]${message.member.displayName}[/b] : ${message.content}`)
+                .field("postcode", process.env.SENDPOSTCODE)
+        }
+    } else {
+        const firstattachment = message.attachments.first();
+        if (message.channel.id == process.env.CID && !(message.member.displayName == "Dedomil")) {
+            if (message.content) {
+                await superagent.post(process.env.SENDSHOUTURL)
+                    .set("Cookie", process.env.SENDCOOKIE)
+                    .accept(process.env.SENDACCEPT)
+                    .field("shout_data", `[b]${message.member.displayName}[/b] Has Uploaded An [url=${firstattachment.url}]Attachment[/url] With Caption [i]${message.content}[/i]`)
+                    .field("postcode", process.env.SENDPOSTCODE)
+            } else {
+                await superagent.post(process.env.SENDSHOUTURL)
+                    .set("Cookie", process.env.SENDCOOKIE)
+                    .accept(process.env.SENDACCEPT)
+                    .field("shout_data", `[b]${message.member.displayName}[/b] Has Uploaded An [url=${firstattachment.url}]Attachment[/url]`)
+                    .field("postcode", process.env.SENDPOSTCODE)
+            }
+        }
     }
 })
 bot.login(process.env.BOTID);
