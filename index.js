@@ -22,7 +22,7 @@ bot.once('ready', async () => {
     }, 2000);
 });
 bot.on("messageCreate", async (message) => {
-    if (message.attachments.size == 0) {
+    if ((message.attachments.size == 0) && !(message.reference)) {
         if (message.channel.id == process.env.CID && !(message.member.displayName == "Dedomil")) {
             await superagent.post(process.env.SENDSHOUTURL)
                 .set("Cookie", process.env.SENDCOOKIE)
@@ -31,19 +31,49 @@ bot.on("messageCreate", async (message) => {
                 .field("postcode", process.env.SENDPOSTCODE)
         }
     } else {
-        const firstattachment = message.attachments.first();
         if (message.channel.id == process.env.CID && !(message.member.displayName == "Dedomil")) {
-            if (message.content) {
-                await superagent.post(process.env.SENDSHOUTURL)
-                    .set("Cookie", process.env.SENDCOOKIE)
-                    .accept(process.env.SENDACCEPT)
-                    .field("shout_data", `[b]${message.member.displayName}[/b] Has Uploaded An [url=${firstattachment.url}]Attachment[/url] With Caption [i]${message.content}[/i]`)
-                    .field("postcode", process.env.SENDPOSTCODE)
+            if (!(!(message.attachments.size == 0) && (message.reference))) {
+                if (message.attachments.size == 0) {
+                    const reply = await message.channel.messages.fetch(message.reference.messageId);
+                    let replyContent;
+                    if (reply.content.includes(":** ")) {
+                        replyContent = reply.content.split(":** ")[1]
+                    } else {
+                        replyContent = reply.content
+                    }
+                    await superagent.post(process.env.SENDSHOUTURL)
+                        .set("Cookie", process.env.SENDCOOKIE)
+                        .accept(process.env.SENDACCEPT)
+                        .field("shout_data", `[b]${message.member.displayName}[/b] : [u]\`${replyContent}\`[/u] - [i]${message.content}[/i] `)
+                        .field("postcode", process.env.SENDPOSTCODE)
+                } else {
+                    const firstattachment = message.attachments.first();
+                    if (message.content) {
+                        await superagent.post(process.env.SENDSHOUTURL)
+                            .set("Cookie", process.env.SENDCOOKIE)
+                            .accept(process.env.SENDACCEPT)
+                            .field("shout_data", `[b]${message.member.displayName}[/b] Has Uploaded An [url=${firstattachment.url}]Attachment[/url] With Caption [i]${message.content}[/i]`)
+                            .field("postcode", process.env.SENDPOSTCODE)
+                    } else {
+                        await superagent.post(process.env.SENDSHOUTURL)
+                            .set("Cookie", process.env.SENDCOOKIE)
+                            .accept(process.env.SENDACCEPT)
+                            .field("shout_data", `[b]${message.member.displayName}[/b] Has Uploaded An [url=${firstattachment.url}]Attachment[/url]`)
+                            .field("postcode", process.env.SENDPOSTCODE)
+                    }
+                }
             } else {
+                const reply = await message.channel.messages.fetch(message.reference.messageId);
+                let replyContent;
+                if (reply.content.includes(":** ")) {
+                    replyContent = reply.content.split(":** ")[1]
+                } else {
+                    replyContent = reply.content
+                }
                 await superagent.post(process.env.SENDSHOUTURL)
                     .set("Cookie", process.env.SENDCOOKIE)
                     .accept(process.env.SENDACCEPT)
-                    .field("shout_data", `[b]${message.member.displayName}[/b] Has Uploaded An [url=${firstattachment.url}]Attachment[/url]`)
+                    .field("shout_data", `[b]${message.member.displayName}[/b] Has Replied To Message [u]\`${replyContent}\`[/u] With An [url=${firstattachment.url}]Attachment[/url]`)
                     .field("postcode", process.env.SENDPOSTCODE)
             }
         }
